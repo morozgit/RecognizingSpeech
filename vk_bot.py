@@ -6,22 +6,15 @@ import random
 import vk_api as vk
 from google.cloud import dialogflow
 
-def echo(event, vk_api):
-    vk_api.messages.send(
-        user_id=event.user_id,
-        message=event.text,
-        random_id=random.randint(1,1000)
-    )
 
-def detect_intent_texts(event, vk_api):
-    project_id = 'recognizingspeech'
-    session_id = 'temchmorozov'
+def detect_intent_texts(event, vk_api, project_id, session_id):
+    project_id = project_id
+    session_id = session_id
     language_code = 'ru'
     texts = event.text
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
 
-    # for text in texts:
     text_input = dialogflow.TextInput(text=texts, language_code=language_code)
 
     query_input = dialogflow.QueryInput(text=text_input)
@@ -36,7 +29,7 @@ def detect_intent_texts(event, vk_api):
         )
 
 
-def discussing_with_vk(vk_token):
+def discussing_with_vk(vk_token, project_id, session_id):
     vk_session = vk.VkApi(token=vk_token)
     vk_api = vk_session.get_api()
     longpoll = VkLongPoll(vk_session)
@@ -44,14 +37,7 @@ def discussing_with_vk(vk_token):
     try:
         for event in longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                echo(event, vk_api)
-                detect_intent_texts(event, vk_api)
-                print('Новое сообщение:')
-                if event.to_me:
-                    print('Для меня от: ', event.user_id)
-                else:
-                    print('От меня для: ', event.user_id)
-                print('Текст:', event.text)
+                detect_intent_texts(event, vk_api, project_id, session_id)
 
     except Exception as e:
         print(f"Произошла ошибка: {e}")
@@ -59,8 +45,10 @@ def discussing_with_vk(vk_token):
 
 def main():
     load_dotenv(find_dotenv())
+    project_id = os.environ.get("PROJECT_ID")
+    session_id = os.environ.get("SESSION_ID")
     vk_token = os.environ.get("VK_TOKEN")
-    discussing_with_vk(vk_token)
+    discussing_with_vk(vk_token, project_id, session_id)
 
 
 if __name__ == '__main__':

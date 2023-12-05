@@ -1,15 +1,8 @@
-import logging
 import os
 from dotenv import load_dotenv, find_dotenv
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from google.cloud import dialogflow
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
-
-logger = logging.getLogger(__name__)
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -40,6 +33,7 @@ def detect_intent_texts(update: Update, context: CallbackContext):
         request={"session": session, "query_input": query_input}
     )
     update.message.reply_text(response.query_result.fulfillment_text)
+
 
 def main():
     load_dotenv(find_dotenv())
