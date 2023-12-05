@@ -17,15 +17,14 @@ def help_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Help!')
 
 
-def detect_intent_texts(update: Update, context: CallbackContext):
-    project_id = 'recognizingspeech'
-    session_id = 'temchmorozov'
+def detect_intent_texts(update: Update, context: CallbackContext, project_id, session_id):
+    project_id = project_id
+    session_id = session_id
     language_code = 'ru'
     texts = update.message.text
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
 
-    # for text in texts:
     text_input = dialogflow.TextInput(text=texts, language_code=language_code)
 
     query_input = dialogflow.QueryInput(text=text_input)
@@ -38,11 +37,14 @@ def detect_intent_texts(update: Update, context: CallbackContext):
 def main():
     load_dotenv(find_dotenv())
     tg_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    project_id = os.environ.get("PROJECT_ID")
+    session_id = os.environ.get("SESSION_ID")
     updater = Updater(tg_token)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, detect_intent_texts))
-
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
+                                          lambda update, context: detect_intent_texts(update, context, project_id,
+                                                                                      session_id)))
     updater.start_polling()
     updater.idle()
 
