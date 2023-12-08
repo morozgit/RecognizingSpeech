@@ -3,6 +3,19 @@ from dotenv import load_dotenv, find_dotenv
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from google.cloud import dialogflow
+import logging
+import telegram
+
+
+class TelegramLogsHandler(logging.Handler):
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -39,14 +52,23 @@ def main():
     tg_token = os.environ.get("TELEGRAM_BOT_TOKEN")
     project_id = os.environ.get("PROJECT_ID")
     session_id = os.environ.get("SESSION_ID")
+    chat_id = os.environ.get("CHAT_ID")
+    bot = telegram.Bot(token=tg_token)
+    bot.logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    bot.logger.warning('Бот запущен')
+
     updater = Updater(tg_token)
     dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
-                                          lambda update, context: detect_intent_texts(update, context, project_id,
-                                                                                      session_id)))
-    updater.start_polling()
-    updater.idle()
+    try:
+        dispatcher.add_handler(CommandHandler("start", start))
+        dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
+                                              lambda update, context: detect_intent_texts(update, context, project_id,
+                                                                                          session_id)))
+        updater.start_polling()
+        updater.idle()
+    except Exception as err:
+        error = f'Бот упал с ошибкой {str(err)}'
+        bot.logger.warning(error)
 
 
 if __name__ == '__main__':
