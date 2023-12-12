@@ -21,8 +21,6 @@ class TelegramLogsHandler(logging.Handler):
 
 
 def detect_intent_texts(event, vk_api, project_id, session_id):
-    project_id = project_id
-    session_id = session_id
     language_code = 'ru'
     texts = event.text
     session_client = dialogflow.SessionsClient()

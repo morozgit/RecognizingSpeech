@@ -31,8 +31,6 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 
 def detect_intent_texts(update: Update, context: CallbackContext, project_id, session_id):
-    project_id = project_id
-    session_id = session_id
     language_code = 'ru'
     texts = update.message.text
     session_client = dialogflow.SessionsClient()
