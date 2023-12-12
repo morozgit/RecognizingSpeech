@@ -2,20 +2,9 @@ import os
 from dotenv import load_dotenv, find_dotenv
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from google.cloud import dialogflow
-import logging
 import telegram
-
-
-class TelegramLogsHandler(logging.Handler):
-    def __init__(self, tg_bot, chat_id):
-        super().__init__()
-        self.chat_id = chat_id
-        self.tg_bot = tg_bot
-
-    def emit(self, record):
-        log_entry = self.format(record)
-        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
+from tg_logs_handler import TelegramLogsHandler
+from dialogflow_api import detect_intent_texts
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -30,19 +19,10 @@ def help_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Help!')
 
 
-def detect_intent_texts(update: Update, context: CallbackContext, project_id, session_id):
-    language_code = 'ru'
+def send_massage(update: Update, context: CallbackContext, project_id, session_id):
     texts = update.message.text
-    session_client = dialogflow.SessionsClient()
-    session = session_client.session_path(project_id, session_id)
-
-    text_input = dialogflow.TextInput(text=texts, language_code=language_code)
-
-    query_input = dialogflow.QueryInput(text=text_input)
-    response = session_client.detect_intent(
-        request={"session": session, "query_input": query_input}
-    )
-    update.message.reply_text(response.query_result.fulfillment_text)
+    answer = detect_intent_texts(project_id, session_id, texts)
+    update.message.reply_text(answer.query_result.fulfillment_text)
 
 
 def main():
@@ -60,7 +40,7 @@ def main():
     try:
         dispatcher.add_handler(CommandHandler("start", start))
         dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
-                                              lambda update, context: detect_intent_texts(update, context, project_id,
+                                              lambda update, context: send_massage(update, context, project_id,
                                                                                           session_id)))
         updater.start_polling()
         updater.idle()
