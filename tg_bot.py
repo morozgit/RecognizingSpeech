@@ -19,9 +19,9 @@ def help_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Help!')
 
 
-def send_massage(update: Update, context: CallbackContext, project_id, session_id):
+def send_massage(update: Update, context: CallbackContext, project_id):
     texts = update.message.text
-    answer = detect_intent_texts(project_id, session_id, texts)
+    answer = detect_intent_texts(project_id, texts)
     update.message.reply_text(answer.query_result.fulfillment_text)
 
 
@@ -29,7 +29,6 @@ def main():
     load_dotenv(find_dotenv())
     tg_token = os.environ.get("TELEGRAM_BOT_TOKEN")
     project_id = os.environ.get("PROJECT_ID")
-    session_id = os.environ.get("SESSION_ID")
     tg_chat_id = os.environ.get("TG_CHAT_ID")
     bot = telegram.Bot(token=tg_token)
     bot.logger.addHandler(TelegramLogsHandler(bot, tg_chat_id))
@@ -40,8 +39,7 @@ def main():
     try:
         dispatcher.add_handler(CommandHandler("start", start))
         dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
-                                              lambda update, context: send_massage(update, context, project_id,
-                                                                                          session_id)))
+                                              lambda update, context: send_massage(update, context, project_id)))
         updater.start_polling()
         updater.idle()
     except Exception as err:
