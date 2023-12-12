@@ -1,5 +1,7 @@
+import argparse
 from google.cloud import dialogflow
 import json
+
 
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
 
@@ -26,8 +28,11 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
     print("Intent created: {}".format(response))
 
 def main():
-    with open("training_phrases.json", "r") as my_file:
-        training_phrases_json = my_file.read()
+    parser = argparse.ArgumentParser(description='Скрипт загрузит тренировочные фразы')
+    parser.add_argument('trainer', help='Укажите путь к файлу')
+    trainer = parser.parse_args().trainer
+    with open(trainer, "r") as file:
+        training_phrases_json = file.read()
 
     training_phrases = json.loads(training_phrases_json)
     work_questions = training_phrases['Устройство на работу']['questions']

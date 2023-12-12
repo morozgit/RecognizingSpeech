@@ -82,7 +82,7 @@ echo SESSION_ID=ваш SESSION_ID >> .env
 ## Запуск
 Из директории с проектом запустите сайт командой.
 ```bush
-python3 main.py Бот в TG
+python3 tg_bot.py Бот в TG
 python3 vk_bot.py Бот в VK
 ```
 
