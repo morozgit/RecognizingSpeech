@@ -1,6 +1,8 @@
 import argparse
+import os
 from google.cloud import dialogflow
 import json
+from dotenv import load_dotenv, find_dotenv
 
 
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
@@ -28,6 +30,8 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
     print("Intent created: {}".format(response))
 
 def main():
+    load_dotenv(find_dotenv())
+    project_id = os.environ.get("PROJECT_ID")
     parser = argparse.ArgumentParser(description='Скрипт загрузит тренировочные фразы')
     parser.add_argument('trainer', help='Укажите путь к файлу')
     trainer = parser.parse_args().trainer
@@ -35,9 +39,11 @@ def main():
         training_phrases_json = file.read()
 
     training_phrases = json.loads(training_phrases_json)
-    work_questions = training_phrases['Устройство на работу']['questions']
-    work_answer = training_phrases['Устройство на работу']['answer']
-    create_intent('recognizingspeech', 'Как устроиться к вам на работу', work_questions, [work_answer])
+    for topic in training_phrases:
+        work_questions = training_phrases[topic]['questions']
+        work_answer = training_phrases[topic]['answer']
+        print(work_questions, work_answer)
+        create_intent(project_id, topic, work_questions, [work_answer])
 
 if __name__ == '__main__':
     main()

@@ -58,10 +58,10 @@ def main():
     session_id = os.environ.get("SESSION_ID")
     vk_token = os.environ.get("VK_TOKEN")
     tg_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = os.environ.get("CHAT_ID")
+    tg_chat_id = os.environ.get("TG_CHAT_ID")
 
     bot = telegram.Bot(token=tg_token)
-    bot.logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    bot.logger.addHandler(TelegramLogsHandler(bot, tg_chat_id))
     bot.logger.warning('VK Бот запущен')
     try:
         discussing_with_vk(vk_token, project_id, session_id)

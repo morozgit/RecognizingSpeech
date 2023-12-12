@@ -52,9 +52,9 @@ def main():
     tg_token = os.environ.get("TELEGRAM_BOT_TOKEN")
     project_id = os.environ.get("PROJECT_ID")
     session_id = os.environ.get("SESSION_ID")
-    chat_id = os.environ.get("CHAT_ID")
+    tg_chat_id = os.environ.get("TG_CHAT_ID")
     bot = telegram.Bot(token=tg_token)
-    bot.logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    bot.logger.addHandler(TelegramLogsHandler(bot, tg_chat_id))
     bot.logger.warning('Бот запущен')
 
     updater = Updater(tg_token)
