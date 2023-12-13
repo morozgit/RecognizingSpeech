@@ -11,7 +11,8 @@ from dialogflow_api import detect_intent_texts
 
 def send_massage(event, vk_api, project_id):
     texts = event.text
-    answer = detect_intent_texts(project_id, texts)
+    group_id = vk_api.groups.getById()[0]['id']
+    answer = detect_intent_texts(project_id, texts, group_id)
     if not answer.query_result.intent.is_fallback:
         vk_api.messages.send(
             user_id=event.user_id,

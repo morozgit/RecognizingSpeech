@@ -21,7 +21,8 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def send_massage(update: Update, context: CallbackContext, project_id):
     texts = update.message.text
-    answer = detect_intent_texts(project_id, texts)
+    user_id = update.effective_user.id
+    answer = detect_intent_texts(project_id, texts, user_id)
     update.message.reply_text(answer.query_result.fulfillment_text)
 
 

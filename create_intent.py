@@ -39,10 +39,9 @@ def main():
         training_phrases_json = file.read()
 
     training_phrases = json.loads(training_phrases_json)
-    for topic in training_phrases:
-        work_questions = training_phrases[topic]['questions']
-        work_answer = training_phrases[topic]['answer']
-        print(work_questions, work_answer)
+    for topic, training_phrase in training_phrases.items():
+        work_questions = training_phrase['questions']
+        work_answer = training_phrase['answer']
         create_intent(project_id, topic, work_questions, [work_answer])
 
 if __name__ == '__main__':
